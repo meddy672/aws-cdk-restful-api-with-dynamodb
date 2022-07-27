@@ -1,16 +1,42 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
+import * as apigateway from 'aws-cdk-lib/aws-apigateway'
+import * as lambda from 'aws-cdk-lib/aws-lambda'
+
 
 export class AwsRestfulApiWithDatabaseStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const dynamodb_table = new dynamodb.Table(this, "Table", {
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY
+      }
+    )
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'AwsRestfulApiWithDatabaseQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const lambda_backend = new lambda.Function(this, "lambdaFunction", {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: "index.handler",
+      code: lambda.Code.fromAsset("src"),
+      tracing: lambda.Tracing.ACTIVE,
+      environment: {
+        DYNAMODB: dynamodb_table.tableName
+      },
+    })
+
+    dynamodb_table.grantReadData(lambda_backend)
+
+    const api = new apigateway.RestApi(this, "RestAPI", {
+      deployOptions: {
+        dataTraceEnabled: true,
+        tracingEnabled: true
+      },
+    })
+
+
+    const endpoint = api.root.addResource("scan")
+    const endpointMethod = endpoint.addMethod("GET", new apigateway.LambdaIntegration(lambda_backend))
+
   }
 }
