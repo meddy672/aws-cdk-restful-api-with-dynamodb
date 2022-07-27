@@ -1,4 +1,3 @@
->WIP Lambda handler not found issue
 # Restful API With AWS-XRay, Lambda & DynamoDB
 ![Alt Text](./images/Screenshot%202022-07-27%20080854.png)
 
