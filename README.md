@@ -2,6 +2,8 @@
 ![Alt Text](./images/Screenshot%202022-07-27%20080854.png)
 
 This stack is a sample from [Serverless Land](https://serverlessland.com/patterns/apigw-lambda-dynamodb-xray-cdk). This CDK application demonstrates how to integrate X-Ray SDK in Lambda functions to observe into downstream API calls.
+![Alt Text](./images/x-ray.png)
+![Alt Text](./images/x-ray-2.png)
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

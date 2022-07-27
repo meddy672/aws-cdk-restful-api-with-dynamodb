@@ -6,7 +6,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 
 
 export class AwsRestfulApiWithDatabaseStack extends Stack {
-  constructor(scope: Construct, id: string, props: StackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const dynamodb_table = new dynamodb.Table(this, "Table", {
@@ -21,11 +21,11 @@ export class AwsRestfulApiWithDatabaseStack extends Stack {
       code: lambda.Code.fromAsset("src"),
       tracing: lambda.Tracing.ACTIVE,
       environment: {
-        DYNAMODB: dynamodb_table.tableName
+        DYNAMODB_TABLE: dynamodb_table.tableName
       },
     })
 
-    dynamodb_table.grantReadData(lambda_backend)
+    dynamodb_table.grantReadData(lambda_backend.role!)
 
     const api = new apigateway.RestApi(this, "RestAPI", {
       deployOptions: {
